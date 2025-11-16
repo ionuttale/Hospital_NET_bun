@@ -1,0 +1,55 @@
+@model IEnumerable<Hospital_simple.Models.ConsultationModels>
+@{
+    ViewData["Title"] = "Manage Consultations";
+}
+
+<div class="centered-container">
+    <div class="glass-effect content-wrapper">
+        <h2>Manage Consultations</h2>
+
+        <p>
+            <a asp-action="CreateConsultation" class="btn btn-primary">Add New Consultation</a>
+        </p>
+
+        <table class="glass-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Date</th>
+                    <th>Disease</th>
+                    <th>Observation</th>
+                    <th>Receipt</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.PatientName)</td>
+                        <td>@item.ConsultationDate.ToString("g")</td>
+                        <td>@Html.DisplayFor(modelItem => item.Disease)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Observation)</td>
+                        <td>
+                            @if (item.ReceiptID.HasValue)
+                            {
+                                <a asp-action="ViewReceipt" asp-route-id="@item.ReceiptID" class="btn btn-info btn-sm">View</a>
+                            }
+                        </td>
+                        <td class="actions-cell">
+                            <a asp-action="UpdateConsultation" asp-route-id="@item.ConsultationID" class="btn btn-warning btn-sm">Update</a>
+                            <form asp-action="DeleteConsultation" method="post">
+                                <input type="hidden" name="id" value="@item.ConsultationID" />
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Are you sure?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+

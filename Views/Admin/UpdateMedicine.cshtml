@@ -1,0 +1,21 @@
+@model Hospital_simple.Models.MedicineModel
+@{
+    ViewData["Title"] = "Update Medicine";
+}
+
+<h2>Update Medicine</h2>
+
+<form asp-action="UpdateMedicine" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="MedicineID" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="Name" class="form-control" placeholder="Name" />
+        <label asp-for="Name"></label>
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update Medicine</button>
+    <a asp-action="ManageMedicines" class="btn btn-secondary">Cancel</a>
+</form>

@@ -1,0 +1,52 @@
+@model IEnumerable<Hospital_simple.Models.ConsultationModels>
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome back, doctor @ViewData["DoctorFullName"]!</h1>
+</div>
+
+<hr />
+
+<div class="row text-center mb-4">
+    <div class="col-md-6 offset-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">My Patients</h5>
+                <p class="card-text display-4">@ViewData["MyPatientsCount"]</p>
+                <a asp-action="ManagePatients" class="btn btn-outline-light">View Patients</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>Your Last 3 Consultations</h3>
+
+@if (!Model.Any())
+{
+    <p>You have no consultations on record.</p>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Date</th>
+                <th>Disease</th>
+                <th>Observation</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.PatientName)</td>
+                    <td>@item.ConsultationDate.ToString("g")</td> <td>@Html.DisplayFor(modelItem => item.Disease)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Observation)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

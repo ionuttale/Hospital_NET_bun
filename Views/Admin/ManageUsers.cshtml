@@ -1,0 +1,42 @@
+@model IEnumerable<Hospital_simple.Models.UserModel>
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="CreateUser" class="btn btn-primary">Add New User</a>
+</p>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>User Type</th>
+            <th>Last Login</th>
+            <th>Linked Doctor ID</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Username</td>
+                <td>@user.UserType</td>
+                <td>@user.LastLogin?.ToLocalTime().ToString("g")</td>
+                <td>@user.DoctorID</td>
+                <td>
+                    <form asp-action="DeleteUser" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@user.UserID" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete user @user.Username?');">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

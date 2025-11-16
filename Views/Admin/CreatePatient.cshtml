@@ -1,0 +1,42 @@
+@model Hospital_simple.Models.PatientModel
+@{
+    ViewData["Title"] = "Create Patient";
+}
+
+<h2>Create Patient</h2>
+
+<form asp-action="CreatePatient" method="post" class="glass-effect">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="FirstName"></label>
+        <input asp-for="FirstName" placeholder="First Name" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="LastName"></label>
+        <input asp-for="LastName" placeholder="Last Name" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" type="email" placeholder="Email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Address"></label>
+        <input asp-for="Address" placeholder="Address" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Insurance"></label>
+        <input asp-for="Insurance" placeholder="Insurance" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Patient</button>
+    <a asp-action="ManagePatients" class="btn btn-secondary">Cancel</a>
+</form>

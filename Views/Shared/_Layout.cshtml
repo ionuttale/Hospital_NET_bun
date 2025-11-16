@@ -1,0 +1,69 @@
+﻿@using System.Security.Claims
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var username = User.Identity?.Name ?? "Guest";
+    var role = User.FindFirstValue(ClaimTypes.Role)?.ToLower();
+    ViewData["Role"] = role;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Hospital_simple</title>
+
+    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
+
+</head>
+<body>
+    <button class="toggle-btn" id="toggleBtn">☰</button>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Hospital_simple</h2>
+        </div>
+
+        <ul class="nav-links">
+
+            @if (role == "admin")
+            {
+                <li><a asp-controller="Admin" asp-action="Index">Dashboard</a></li>
+                <li><a asp-controller="Admin" asp-action="ManageUsers">Manage Users</a></li>
+                <li><a asp-controller="Admin" asp-action="ManageDoctors">Manage Doctors</a></li>
+                <li><a asp-controller="Admin" asp-action="ManagePatients">Manage Patients</a></li>
+                <li><a asp-controller="Admin" asp-action="ManageMedicines">Manage Medicines</a></li>
+                <li><a asp-controller="Admin" asp-action="ManageConsultations">Manage Consultations</a></li>
+                <li><a asp-controller="Admin" asp-action="ManageReceipts">Manage Receipts</a></li>
+            }
+            else if (role == "client")
+            {
+                <li><a asp-controller="Client" asp-action="Index">Dashboard</a></li>
+                <li><a asp-controller="Client" asp-action="ManagePatients">Manage Patients</a></li>
+                <li><a asp-controller="Client" asp-action="ManageConsultations">Manage Consultations</a></li>
+                <li><a asp-controller="Client" asp-action="ManageReceipts">Manage Receipts</a></li>
+                @* This "Profile" link doesn't exist in your ClientController, so I'm commenting it out *@
+                @* <li><a asp-controller="Client" asp-action="Profile">Profile</a></li> *@
+            }
+
+            <li class="logout-item">
+                <form method="post" asp-controller="Login" asp-action="Logout">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        @RenderBody()
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

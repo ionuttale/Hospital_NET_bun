@@ -1,0 +1,48 @@
+@model Hospital_simple.Models.ReceiptModel
+@{
+    ViewData["Title"] = $"Receipt #{Model.ReceiptID}";
+}
+
+<h1>Receipt Details</h1>
+
+<div class="card">
+    <div class="card-header">
+        <h4>Consultation Info</h4>
+    </div>
+    <div class="card-body">
+        <p><strong>Patient:</strong> @Model.PatientName</p>
+        <p><strong>Doctor:</strong> @Model.DoctorName</p>
+        <p><strong>Disease:</strong> @Model.Disease</p>
+    </div>
+</div>
+
+<h3 class="mt-4">Prescribed Medicines</h3>
+
+@if (!Model.Medicines.Any())
+{
+    <p>No medicines found in this receipt.</p>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Medicine</th>
+                <th>Quantity</th>
+                <th>Dosage</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model.Medicines)
+            {
+                <tr>
+                    <td>@m.Medicine.Name</td>
+                    <td>@m.Quantity</td>
+                    <td>@m.Dosage</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="ManageConsultations" class="btn btn-secondary mt-3">Back to Consultations</a>

@@ -1,0 +1,44 @@
+@model Hospital_simple.Models.ConsultationModels
+@{
+    ViewData["Title"] = "Create Consultation";
+}
+
+<h2>Create Consultation</h2>
+
+<form asp-action="CreateConsultation" method="post" class="glass-effect">
+    @Html.AntiForgeryToken()
+    
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="PatientID">Patient</label>
+        <select asp-for="PatientID" asp-items="ViewBag.Patients">
+            <option value="">-- Select Patient --</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DoctorID">Doctor</label>
+        <select asp-for="DoctorID" asp-items="ViewBag.Doctors">
+            <option value="">-- Select Doctor --</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ConsultationDate">Date</label>
+        <input asp-for="ConsultationDate" type="datetime-local" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Disease"></label>
+        <input asp-for="Disease" placeholder="Disease" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Observation"></label>
+        <textarea asp-for="Observation" placeholder="Observation" style="height: 100px"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="ManageConsultations" class="btn btn-secondary">Cancel</a>
+</form>

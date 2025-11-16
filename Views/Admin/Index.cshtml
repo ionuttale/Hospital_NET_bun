@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var totalDoctors = (int)(ViewData["TotalDoctors"] ?? 0);
+    var totalPatients = (int)(ViewData["TotalPatients"] ?? 0);
+}
+
+<div class="content-card">
+
+    <h1 class="dashboard-title">@ViewData["Title"]</h1>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="dashboard-stat-card">
+                <div class="stat-title">Total Doctors</div>
+                <div class="stat-number">@totalDoctors</div>
+                <a asp-action="ManageDoctors" class="btn btn-primary">Manage Doctors</a>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="dashboard-stat-card">
+                <div class="stat-title">Total Patients</div>
+                <div class="stat-number">@totalPatients</div>
+                <a asp-action="ManagePatients" class="btn btn-primary">Manage Patients</a>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard-stat-card management-links">
+        <div class="stat-title">Management Links</div>
+        <div class="links-wrapper">
+            <a asp-action="ManageUsers" class="btn btn-secondary">Manage Users</a>
+            <a asp-action="ManageMedicines" class="btn btn-secondary">Manage Medicines</a>
+            <a asp-action="ManageConsultations" class="btn btn-secondary">Manage Consultations</a>
+            <a asp-action="ManageReceipts" class="btn btn-secondary">Manage Receipts</a>
+        </div>
+    </div>
+
+</div>

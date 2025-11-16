@@ -1,0 +1,63 @@
+@model Hospital_simple.Models.ReceiptModel
+@{
+    ViewData["Title"] = "Update Receipt";
+}
+
+<h2>Update Receipt</h2>
+
+<form asp-action="UpdateReceipt" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ReceiptID" />
+    <input type="hidden" asp-for="ConsultationID" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h4>Consultation Info</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Patient:</strong> @Model.PatientName</p>
+            <p><strong>Doctor:</strong> @Model.DoctorName</p>
+            <p><strong>Disease:</strong> @Model.Disease</p>
+        </div>
+    </div>
+    
+    <div class="card mb-3">
+        <div class="card-header">
+            <h4>Update Prescribed Medicines</h4>
+        </div>
+        <div class="card-body">
+            @if (!Model.Medicines.Any())
+            {
+                <p>No medicines are currently on this receipt.</p>
+            }
+            
+            <div class="row g-3 mb-2 border-bottom pb-2">
+                <div class="col-md-5"><strong>Medicine</strong></div>
+                <div class="col-md-2"><strong>Quantity</strong></div>
+                <div class="col-md-5"><strong>Dosage</strong></div>
+            </div>
+
+            @for (int i = 0; i < Model.Medicines.Count; i++)
+            {
+                <input type="hidden" asp-for="Medicines[i].ReceiptMedicineID" />
+                <div class="row g-3 mb-2 align-items-center">
+                    <div class="col-md-5">
+                        <select asp-for="Medicines[i].Medicine.MedicineID" class="form-select" 
+                                asp-items="@(new SelectList(ViewBag.Medicines, "Value", "Text", Model.Medicines[i].Medicine.MedicineID))">
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" asp-for="Medicines[i].Quantity" class="form-control" placeholder="Qty" />
+                    </div>
+                    <div class="col-md-5">
+                        <input asp-for="Medicines[i].Dosage" class="form-control" placeholder="e.g., 2 times a day" />
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update Medicines</button>
+    <a asp-action="ManageReceipts" class="btn btn-secondary">Cancel</a>
+</form>

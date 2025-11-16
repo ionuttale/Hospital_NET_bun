@@ -1,0 +1,59 @@
+@model Hospital_simple.Models.CreateDoctorUserModel
+@{
+    ViewData["Title"] = "Create Doctor and User Account";
+}
+
+<h2>Create Doctor and User Account</h2>
+
+<form asp-action="CreateDoctor" method="post" class="glass-effect">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <!-- Doctor Section -->
+    <div class="glass-effect" style="margin-bottom: 1.5rem;">
+        <h3>Doctor Details</h3>
+
+        <div class="form-group">
+            <label asp-for="FirstName"></label>
+            <input asp-for="FirstName" placeholder="First Name" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="LastName"></label>
+            <input asp-for="LastName" placeholder="Last Name" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" type="email" placeholder="Email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Specialization"></label>
+            <input asp-for="Specialization" placeholder="Specialization" />
+        </div>
+    </div>
+
+    <!-- User Account Section -->
+    <div class="glass-effect" style="margin-bottom: 1.5rem;">
+        <h3>User Account (Client)</h3>
+
+        <div class="form-group">
+            <label asp-for="Username"></label>
+            <input asp-for="Username" placeholder="Username" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" type="password" placeholder="Password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Doctor</button>
+    <a asp-action="ManageDoctors" class="btn btn-secondary">Cancel</a>
+</form>

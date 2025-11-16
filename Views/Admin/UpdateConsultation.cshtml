@@ -1,0 +1,40 @@
+@model Hospital_simple.Models.ConsultationModels
+@{
+    ViewData["Title"] = "Update Consultation";
+}
+
+<h2>Update Consultation</h2>
+
+<form asp-action="UpdateConsultation" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ConsultationID" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-floating mb-3">
+        <select asp-for="PatientID" class="form-select" asp-items="ViewBag.Patients" placeholder="Patient"></select>
+        <label asp-for="PatientID">Patient</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select asp-for="DoctorID" class="form-select" asp-items="ViewBag.Doctors" readonly="readonly"></select>
+        <label asp-for="DoctorID">Doctor</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="ConsultationDate" type="datetime-local" class="form-control" placeholder="Date" />
+        <label asp-for="ConsultationDate">Date</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="Disease" class="form-control" placeholder="Disease" />
+        <label asp-for="Disease"></label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <textarea asp-for="Observation" class="form-control" placeholder="Observation" style="height: 100px"></textarea>
+        <label asp-for="Observation"></label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="ManageConsultations" class="btn btn-secondary">Cancel</a>
+</form>

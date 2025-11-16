@@ -1,0 +1,39 @@
+@model IEnumerable<Hospital_simple.Models.MedicineModel>
+@{
+    ViewData["Title"] = "Manage Medicines";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="CreateMedicine" class="btn btn-primary">Add New Medicine</a>
+</p>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.MedicineID</td>
+                <td>@m.Name</td>
+                <td>
+                    <a asp-action="UpdateMedicine" asp-route-id="@m.MedicineID" class="btn btn-warning btn-sm">Update</a> |
+                    <form asp-action="DeleteMedicine" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@m.MedicineID" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete medicine @m.Name?');">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

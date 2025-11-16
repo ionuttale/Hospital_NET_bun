@@ -1,0 +1,44 @@
+@model Hospital_simple.Models.CreateUserModel
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<h2>Create User</h2>
+
+<form asp-action="CreateUser" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="Username" class="form-control" placeholder="Username" />
+        <label asp-for="Username"></label>
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+    
+    <div class="form-floating mb-3">
+        <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+        <label asp-for="Password"></label>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select asp-for="UserType" class="form-select" placeholder="User Type">
+            <option value="">-- Select Type --</option>
+            <option value="admin">Admin</option>
+            <option value="client">Client (Doctor)</option>
+        </select>
+        <label asp-for="UserType"></label>
+        <span asp-validation-for="UserType" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select asp-for="DoctorID" class="form-select" asp-items="ViewBag.Doctors" placeholder="Link to Doctor (Optional)">
+             <option value="">-- None --</option>
+        </select>
+        <label asp-for="DoctorID"></label>
+        <span class="form-text text-muted">Only select this if User Type is 'client'.</span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create User</button>
+    <a asp-action="ManageUsers" class="btn btn-secondary">Cancel</a>
+</form>
