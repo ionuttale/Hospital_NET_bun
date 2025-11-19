@@ -3,32 +3,38 @@
     ViewData["Title"] = "Update Consultation";
 }
 
-<h2>Update Consultation</h2>
+<h2 class="text-center">@ViewData["Title"]</h2>
 
-<form asp-action="UpdateConsultation" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="ConsultationID" />
+<div class="glass-container p-3">
+    <form asp-action="UpdateConsultation" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ConsultationID" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="form-group mb-2">
-        <label asp-for="PatientID">Patient</label>
-        <select asp-for="PatientID" class="form-control" asp-items="ViewBag.Patients"></select>
-    </div>
+        <div class="form-floating mb-3">
+            <select asp-for="PatientID" class="form-select" asp-items="ViewBag.Patients">
+            </select>
+            <label asp-for="PatientID">Patient</label>
+        </div>
 
-    <div class="form-group mb-2">
-        <label asp-for="ConsultationDate">Date</label>
-        <input asp-for="ConsultationDate" type="datetime-local" class="form-control" />
-    </div>
+        <div class="form-floating mb-3">
+            <input asp-for="ConsultationDate" type="datetime-local" class="form-control" />
+            <label asp-for="ConsultationDate">Date</label>
+        </div>
 
-    <div class="form-group mb-2">
-        <label asp-for="Disease">Disease</label>
-        <input asp-for="Disease" class="form-control" />
-    </div>
+        <div class="form-floating mb-3">
+            <input asp-for="Disease" class="form-control" />
+            <label asp-for="Disease">Disease</label>
+        </div>
 
-    <div class="form-group mb-2">
-        <label asp-for="Observation">Observation</label>
-        <textarea asp-for="Observation" class="form-control"></textarea>
-    </div>
+        <div class="form-floating mb-3">
+            <textarea asp-for="Observation" class="form-control" style="height: 100px"></textarea>
+            <label asp-for="Observation">Observation</label>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a asp-action="ManageConsultations" class="btn btn-secondary">Cancel</a>
-</form>
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a asp-action="ManageConsultations" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

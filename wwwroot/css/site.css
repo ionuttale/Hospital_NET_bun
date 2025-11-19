@@ -1,0 +1,299 @@
+/* -----------------------------
+   GENERAL STYLES
+--------------------------------*/
+
+body {
+    font-family: "Segoe UI", sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+/* Glass panel for dashboards, tables, and forms */
+.glass-container {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(15px);
+    border-radius: 16px;
+    padding: 30px 25px;
+    margin: 20px auto;
+    max-width: 1200px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-container:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+}
+
+/* -----------------------------
+   PAGE TITLES
+--------------------------------*/
+
+h1, h2 {
+    font-weight: 700;
+    color: #b8001c;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+h1.dashboard-title {
+    font-size: 32px;
+}
+
+h2 {
+    font-size: 28px;
+}
+
+/* -----------------------------
+   DASHBOARD STAT CARDS
+--------------------------------*/
+
+.dashboard-stat-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(15px);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.stat-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #b8001c;
+    margin-bottom: 15px;
+}
+
+/* -----------------------------
+   BUTTONS (Unified for forms, tables, dashboard, links)
+--------------------------------*/
+
+.btn, 
+.dashboard-stat-card .btn, 
+.management-links .links-wrapper a, 
+table .btn, 
+form .btn {
+    display: inline-block;
+    width: 120px;               /* fixed uniform width */
+    padding: 6px 0;             /* vertical padding */
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: 2px solid #b8001c;
+    background-color: #ffffff;   /* default white */
+    color: #b8001c;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn:hover, 
+.dashboard-stat-card .btn:hover, 
+.management-links .links-wrapper a:hover, 
+table .btn:hover,
+form .btn:hover {
+    background-color: #b8001c;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Delete button */
+.btn-danger {
+    background-color: #c2041a;
+    color: white;
+    border: 2px solid #c2041a;
+}
+
+.btn-danger:hover {
+    background-color: #910014;
+}
+
+/* Secondary button */
+.btn-secondary {
+    background-color: #ffffffcc;
+    color: #b8001c;
+    border: 2px solid #b8001c;
+}
+
+.btn-secondary:hover {
+    background-color: #b8001c;
+    color: white;
+}
+
+/* -----------------------------
+   FORMS
+--------------------------------*/
+
+form .form-group {
+    margin-bottom: 15px;
+}
+
+form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #b8001c;
+}
+
+form input,
+form select,
+form textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(184,0,28,0.5);
+    background-color: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    font-size: 14px;
+    color: #333;
+    box-sizing: border-box;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+    border-color: #b8001c;
+    outline: none;
+    box-shadow: 0 0 8px rgba(184,0,28,0.3);
+}
+
+form .d-flex {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* -----------------------------
+   MANAGEMENT LINKS
+--------------------------------*/
+
+.management-links {
+    margin-top: 30px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(15px);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.links-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* -----------------------------
+   TABLES
+--------------------------------*/
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+table thead {
+    background-color: rgba(184, 0, 28, 0.15);
+}
+
+table thead th {
+    color: #b8001c;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 15px;
+}
+
+table tbody td {
+    padding: 12px 15px;
+    color: #333;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+table tbody tr:hover {
+    background-color: rgba(255, 184, 188, 0.15);
+    transition: background 0.2s ease;
+}
+
+/* Buttons inside tables spacing */
+table .btn {
+    margin: 2px 4px 2px 0;
+}
+
+/* -----------------------------
+   DASHBOARD ROWS
+--------------------------------*/
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.col-md-6 {
+    flex: 1 1 45%;
+}
+
+@media (max-width: 768px) {
+    .col-md-6 {
+        flex: 1 1 100%;
+    }
+
+    table thead {
+        display: none;
+    }
+
+    table, table tbody, table tr, table td {
+        display: block;
+        width: 100%;
+    }
+
+    table tbody tr {
+        margin-bottom: 15px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 15px;
+    }
+
+    table tbody td {
+        padding: 8px 0;
+        text-align: right;
+        position: relative;
+    }
+
+    table tbody td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        font-weight: 600;
+        color: #b8001c;
+        text-align: left;
+    }
+}

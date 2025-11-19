@@ -3,53 +3,50 @@
     ViewData["Title"] = "Manage Consultations";
 }
 
-<div class="centered-container">
-    <div class="glass-effect content-wrapper">
-        <h2>Manage Consultations</h2>
+<div class="glass-container">
 
-        <p>
-            <a asp-action="CreateConsultation" class="btn btn-primary">Add New Consultation</a>
-        </p>
+    <h2>@ViewData["Title"]</h2>
 
-        <table class="glass-table">
-            <thead>
+    <p>
+        <a asp-action="CreateConsultation" class="btn btn-primary">Add New Consultation</a>
+    </p>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Date</th>
+                <th>Disease</th>
+                <th>Observation</th>
+                <th>Receipt</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
                 <tr>
-                    <th>Patient</th>
-                    <th>Date</th>
-                    <th>Disease</th>
-                    <th>Observation</th>
-                    <th>Receipt</th>
-                    <th>Actions</th>
+                    <td data-label="Patient">@Html.DisplayFor(modelItem => item.PatientName)</td>
+                    <td data-label="Date">@item.ConsultationDate.ToString("g")</td>
+                    <td data-label="Disease">@Html.DisplayFor(modelItem => item.Disease)</td>
+                    <td data-label="Observation">@Html.DisplayFor(modelItem => item.Observation)</td>
+                    <td data-label="Receipt">
+                        @if (item.ReceiptID.HasValue)
+                        {
+                            <a asp-action="ViewReceipt" asp-route-id="@item.ReceiptID" class="btn btn-secondary btn-sm">View</a>
+                        }
+                    </td>
+                    <td data-label="Actions">
+                        <a asp-action="UpdateConsultation" asp-route-id="@item.ConsultationID" class="btn btn-secondary btn-sm">Update</a>
+                        <form asp-action="DeleteConsultation" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@item.ConsultationID" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@Html.DisplayFor(modelItem => item.PatientName)</td>
-                        <td>@item.ConsultationDate.ToString("g")</td>
-                        <td>@Html.DisplayFor(modelItem => item.Disease)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Observation)</td>
-                        <td>
-                            @if (item.ReceiptID.HasValue)
-                            {
-                                <a asp-action="ViewReceipt" asp-route-id="@item.ReceiptID" class="btn btn-info btn-sm">View</a>
-                            }
-                        </td>
-                        <td class="actions-cell">
-                            <a asp-action="UpdateConsultation" asp-route-id="@item.ConsultationID" class="btn btn-warning btn-sm">Update</a>
-                            <form asp-action="DeleteConsultation" method="post">
-                                <input type="hidden" name="id" value="@item.ConsultationID" />
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Are you sure?')">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+            }
+        </tbody>
+    </table>
+
 </div>
-
-

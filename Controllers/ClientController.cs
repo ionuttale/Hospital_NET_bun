@@ -126,6 +126,48 @@ namespace Hospital_simple.Controllers
             return View(patients);
         }
 
+        // GET: Client/CreatePatient
+        [HttpGet]
+        public IActionResult CreatePatient()
+        {
+            return View(); // Return an empty form
+        }
+
+        // POST: Client/CreatePatient
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePatient(PatientModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            try
+            {
+                await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
+                await connection.OpenAsync();
+
+                string sql = @"INSERT INTO Patients (FirstName, LastName, Email, Address, Insurance)
+                            VALUES (@first, @last, @email, @address, @insurance)";
+
+                using var cmd = new MySqlCommand(sql, connection);
+                cmd.Parameters.AddWithValue("@first", model.FirstName);
+                cmd.Parameters.AddWithValue("@last", model.LastName);
+                cmd.Parameters.AddWithValue("@email", model.Email);
+                cmd.Parameters.AddWithValue("@address", model.Address ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@insurance", model.Insurance ?? (object)DBNull.Value);
+
+                await cmd.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating patient");
+                ModelState.AddModelError("", "Error creating patient.");
+                return View(model);
+            }
+
+            return RedirectToAction(nameof(ManagePatients));
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> UpdatePatient(ulong id)
         {
@@ -733,6 +775,157 @@ namespace Hospital_simple.Controllers
 
             return View(receipts);
         }
+
+        // GET: Client/CreateReceipt
+        [HttpGet]
+        public async Task<IActionResult> CreateReceipt()
+        {
+            await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
+            await connection.OpenAsync();
+
+            // Load consultations for dropdown
+            var consultations = new List<SelectListItem>();
+            string sqlConsults = @"
+                SELECT c.ConsultID, CONCAT(p.FirstName, ' ', p.LastName, ' - ', c.Disease) AS DisplayText
+                FROM Consultations c
+                INNER JOIN Patients p ON c.PatientID = p.PatientID
+                ORDER BY c.Date DESC";
+            
+            using (var cmd = new MySqlCommand(sqlConsults, connection))
+            using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    consultations.Add(new SelectListItem
+                    {
+                        Value = reader["ConsultID"].ToString(),
+                        Text = reader["DisplayText"].ToString()
+                    });
+                }
+            }
+            ViewBag.Consultations = consultations;
+
+            // Load medicines for dropdown
+            var medicinesList = new List<SelectListItem>();
+            string sqlMeds = "SELECT MedicineID, Name FROM Medicines ORDER BY Name";
+            using var cmdMeds = new MySqlCommand(sqlMeds, connection);
+            using var readerMeds = await cmdMeds.ExecuteReaderAsync();
+            while (await readerMeds.ReadAsync())
+            {
+                medicinesList.Add(new SelectListItem
+                {
+                    Value = readerMeds["MedicineID"].ToString(),
+                    Text = readerMeds["Name"].ToString()
+                });
+            }
+            ViewBag.Medicines = medicinesList;
+
+            var model = new CreateReceiptModel();
+            // Add 5 empty medicine lines
+            for (int i = 0; i < 5; i++) model.Medicines.Add(new ReceiptMedicineLineItem());
+
+            return View(model);
+        }
+
+        // POST: Client/CreateReceipt
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateReceipt(CreateReceiptModel model)
+        {
+            int doctorId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            if (!ModelState.IsValid)
+            {
+                await PopulateCreateReceiptDropdowns(); // Helper to repopulate dropdowns
+                return View(model);
+            }
+
+            try
+            {
+                await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
+                await connection.OpenAsync();
+                await using var transaction = await connection.BeginTransactionAsync();
+
+                // 1️⃣ Insert Receipt
+                string sqlReceipt = @"INSERT INTO Receipts (ConsultID) VALUES (@consultId);
+                                    SELECT LAST_INSERT_ID();";
+                using var cmdReceipt = new MySqlCommand(sqlReceipt, connection, transaction);
+                cmdReceipt.Parameters.AddWithValue("@consultId", model.ConsultationID);
+                ulong receiptId = Convert.ToUInt64(await cmdReceipt.ExecuteScalarAsync());
+
+                // 2️⃣ Insert medicines
+                var validMeds = model.Medicines
+                    .Where(m => m.MedicineID > 0 && m.Quantity > 0 && !string.IsNullOrEmpty(m.Dosage))
+                    .ToList();
+
+                foreach (var med in validMeds)
+                {
+                    string sqlMed = @"INSERT INTO Receipt_Medicines (ReceiptID, MedicineID, Quantity, Dosage)
+                                    VALUES (@rId, @medId, @qty, @dosage)";
+                    using var cmdMed = new MySqlCommand(sqlMed, connection, transaction);
+                    cmdMed.Parameters.AddWithValue("@rId", receiptId);
+                    cmdMed.Parameters.AddWithValue("@medId", med.MedicineID);
+                    cmdMed.Parameters.AddWithValue("@qty", med.Quantity);
+                    cmdMed.Parameters.AddWithValue("@dosage", med.Dosage);
+                    await cmdMed.ExecuteNonQueryAsync();
+                }
+
+                await transaction.CommitAsync();
+                return RedirectToAction(nameof(ManageReceipts));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating receipt");
+                ModelState.AddModelError("", "Error creating receipt.");
+                await PopulateCreateReceiptDropdowns();
+                return View(model);
+            }
+        }
+
+        // Helper to repopulate dropdowns
+        private async Task PopulateCreateReceiptDropdowns()
+        {
+            await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
+            await connection.OpenAsync();
+
+            // Populate consultations
+            var consultations = new List<SelectListItem>();
+            string sqlConsults = @"
+                SELECT c.ConsultID, CONCAT(p.FirstName, ' ', p.LastName, ' - ', c.Disease) AS DisplayText
+                FROM Consultations c
+                INNER JOIN Patients p ON c.PatientID = p.PatientID
+                ORDER BY c.Date DESC";
+            using (var cmd = new MySqlCommand(sqlConsults, connection))
+            using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    consultations.Add(new SelectListItem
+                    {
+                        Value = reader["ConsultID"].ToString(),
+                        Text = reader["DisplayText"].ToString()
+                    });
+                }
+            }
+            ViewBag.Consultations = consultations;
+
+            // Populate medicines
+            var medicinesList = new List<SelectListItem>();
+            string sqlMeds = "SELECT MedicineID, Name FROM Medicines ORDER BY Name";
+            using var cmdMeds = new MySqlCommand(sqlMeds, connection);
+            using var readerMeds = await cmdMeds.ExecuteReaderAsync();
+            while (await readerMeds.ReadAsync())
+            {
+                medicinesList.Add(new SelectListItem
+                {
+                    Value = readerMeds["MedicineID"].ToString(),
+                    Text = readerMeds["Name"].ToString()
+                });
+            }
+            ViewBag.Medicines = medicinesList;
+        }
+
+
 
         // GET: Client/ViewReceipt/1
         [HttpGet]

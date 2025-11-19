@@ -1,0 +1,110 @@
+/* -----------------------------
+   LOGIN PAGE – GLASS STYLE
+--------------------------------*/
+
+/* Reset and global styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", sans-serif;
+    background-color: #ffffff;           /* plain white background */
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Container for centering */
+.login-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+/* Glass-style login box */
+.login-box {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(15px);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Title */
+.login-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 32px;
+    color: #b8001c;                      /* red text */
+    margin-bottom: 20px;
+}
+
+/* Validation messages */
+.validation-summary {
+    color: #b8001c;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* Labels above inputs */
+.input-group-custom {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.input-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #b8001c;                      /* red text */
+    margin-bottom: 6px;
+}
+
+.form-control {
+    height: 45px;
+    padding: 10px 12px;
+    font-size: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.75);   /* glass effect */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* stronger shadow */
+}
+
+
+/* Log In button */
+.form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.btn-primary {
+    width: 70%;
+    font-size: 18px;
+    padding: 12px 0;
+    border-radius: 14px;
+    background-color: #b8001c;           /* red background */
+    color: white;                         /* white text */
+    border: none;
+    font-weight: 600;
+    transition: background 0.2s ease, transform 0.2s ease;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Button hover effect */
+.btn-primary:hover {
+    background-color: #910014;           /* darker red on hover */
+    transform: translateY(-2px);
+}
+
+/* Divider line */
+hr {
+    border-color: rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
+}

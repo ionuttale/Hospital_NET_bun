@@ -3,46 +3,52 @@
     ViewData["Title"] = "Manage Doctors";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="glass-container">
 
-<p>
-    <a asp-action="CreateDoctor" class="btn btn-primary">Add New Doctor</a>
-</p>
+    <h2>@ViewData["Title"]</h2>
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
+    <p>
+        <a asp-action="CreateDoctor" class="btn">Add New Doctor</a>
+    </p>
 
-<table class="table table-striped table-bordered">
-    <thead>
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Specialization</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var doc in Model)
-        {
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <table class="table table-striped table-bordered">
+        <thead>
             <tr>
-                <td>@doc.FirstName</td>
-                <td>@doc.LastName</td>
-                <td>@doc.Email</td>
-                <td>@doc.Specialization</td>
-                <td class="d-flex flex-wrap gap-2">
-                    <a asp-action="UpdateDoctor" asp-route-id="@doc.DoctorID" class="btn btn-warning btn-sm">Update</a>
-                    <form asp-action="DeleteDoctor" method="post" class="d-inline">
-                        <input type="hidden" name="id" value="@doc.DoctorID" />
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete Dr. @doc.FirstName @doc.LastName? This also deletes their linked user account.');">
-                             Delete
-                        </button>
-                    </form>
-                </td>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Specialization</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var doc in Model)
+            {
+                <tr>
+                    <td data-label="First Name">@doc.FirstName</td>
+                    <td data-label="Last Name">@doc.LastName</td>
+                    <td data-label="Email">@doc.Email</td>
+                    <td data-label="Specialization">@doc.Specialization</td>
+                    <td data-label="Actions" class="actions-cell d-flex flex-wrap gap-2">
+                        <a asp-action="UpdateDoctor" asp-route-id="@doc.DoctorID" class="btn btn-secondary">
+                            Update
+                        </a>
+                        <form asp-action="DeleteDoctor" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@doc.DoctorID" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete Dr. @doc.FirstName @doc.LastName? This also deletes their linked user account.');">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

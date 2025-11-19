@@ -4,6 +4,19 @@ namespace Hospital_simple.Models
 {
     public class CreateUserModel
     {
+        // --- New Doctor Details ---
+        [Display(Name = "First Name")]
+        public string? FirstName { get; set; }
+
+        [Display(Name = "Last Name")]
+        public string? LastName { get; set; }
+
+        [EmailAddress]
+        public string? Email { get; set; }
+        
+        public string? Specialty { get; set; }
+
+        // --- User Account Details ---
         [Required]
         public string Username { get; set; }
 
@@ -13,9 +26,6 @@ namespace Hospital_simple.Models
 
         [Required]
         [Display(Name = "User Type")]
-        public string UserType { get; set; } // "admin" or "client"
-
-        [Display(Name = "Link to Doctor (Optional)")]
-        public ulong? DoctorID { get; set; }
+        public string UserType { get; set; }  // "doctor" or "admin"
     }
 }

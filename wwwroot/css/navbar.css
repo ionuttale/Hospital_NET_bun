@@ -1,0 +1,104 @@
+/* ------------------------------------
+   SIDEBAR (NAVBAR) - GLASS MORPHIC
+--------------------------------------- */
+
+body {
+    font-family: "Segoe UI", sans-serif;
+    background: #f6f6f6;
+    margin: 0;
+}
+
+.toggle-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: #b8001c;
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    font-size: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 1000;
+    transition: 0.2s ease;
+}
+
+.toggle-btn:hover {
+    background: #a10316;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(18px);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    padding-top: 60px;
+    transition: left 0.3s ease;
+    border-right: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.sidebar-header h2 {
+    color: #b8001c;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+}
+
+.nav-links li {
+    margin: 10px 0;
+}
+
+.nav-links a,
+.logout-btn {
+    display: block;
+    text-decoration: none;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 17px;
+    color: #333;
+    transition: 0.2s ease;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.nav-links a:hover,
+.logout-btn:hover {
+    background: #b8001c;
+    color: white;
+}
+
+.logout-item form {
+    margin: 0;
+}
+
+.logout-btn {
+    width: 100%;
+    text-align: left;
+    border: none;
+    cursor: pointer;
+}
+
+.main-content {
+    margin-left: 240px;
+    padding: 25px;
+    transition: margin-left 0.3s ease;
+}
+
+/* --- Sidebar collapsed --- */
+.sidebar.closed {
+    left: -240px;
+}
+
+.main-content.expanded {
+    margin-left: 0;
+}

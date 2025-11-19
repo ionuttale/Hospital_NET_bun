@@ -3,7 +3,7 @@
     ViewData["Title"] = "Manage Receipts";
 }
 
-<h2>Manage Receipts</h2>
+<h2>@ViewData["Title"]</h2>
 
 <table class="table table-striped table-bordered">
     <thead>
@@ -41,11 +41,11 @@
                     }
                 </td>
                 <td class="d-flex flex-wrap gap-2">
-                    <a asp-action="UpdateReceipt" asp-route-id="@item.ReceiptID" class="btn btn-sm btn-warning">Update</a>
+                    <a asp-action="UpdateReceipt" asp-route-id="@item.ReceiptID" class="btn btn-warning">Update</a>
                     <form asp-action="DeleteReceipt" method="post" class="d-inline">
                         <input type="hidden" name="id" value="@item.ReceiptID" />
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-sm btn-danger" 
+                        <button type="submit" class="btn btn-danger" 
                                 onclick="return confirm('Are you sure you want to delete this receipt?')">
                             Delete
                         </button>

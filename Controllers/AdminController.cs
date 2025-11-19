@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System;
+using BCrypt;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq; // Added for .Any()
 
@@ -93,14 +94,12 @@ namespace Hospital_simple.Controllers
             return View();
         }
 
-        // POST: Admin/CreateUser
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUser(CreateUserModel model)
         {
             if (!ModelState.IsValid)
             {
-                await PopulateCreateUserDropdowns();
                 return View(model);
             }
 
@@ -109,31 +108,67 @@ namespace Hospital_simple.Controllers
                 await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
                 await connection.OpenAsync();
                 
-                // WARNING: This stores passwords in plain text.
-                // You should use a proper hashing library like BCrypt.Net
-                string sql = @"
-                    INSERT INTO Users (Username, Password, UserType, DoctorID)
-                    VALUES (@user, @pass, @type, @docId)";
-                
-                using var cmd = new MySqlCommand(sql, connection);
-                cmd.Parameters.AddWithValue("@user", model.Username);
-                cmd.Parameters.AddWithValue("@pass", model.Password); // PLAIN TEXT!
-                cmd.Parameters.AddWithValue("@type", model.UserType);
-                cmd.Parameters.AddWithValue("@docId", model.DoctorID.HasValue ? (object)model.DoctorID.Value : DBNull.Value);
-                
-                await cmd.ExecuteNonQueryAsync();
-                
-                return RedirectToAction(nameof(ManageUsers));
+                // Start a transaction
+                await using var transaction = await connection.BeginTransactionAsync();
+
+                ulong? newDoctorId = null;
+
+                try 
+                {
+                    // 1. If UserType is 'client', create the Doctor first
+                    if (model.UserType == "client")
+                    {
+                        // Basic validation for doctor fields
+                        if (string.IsNullOrWhiteSpace(model.FirstName) || string.IsNullOrWhiteSpace(model.LastName))
+                        {
+                            ModelState.AddModelError("", "First Name and Last Name are required for Doctors.");
+                            return View(model);
+                        }
+
+                        string sqlDoctor = @"INSERT INTO Doctors (FirstName, LastName, Email, Specialty) 
+                                            VALUES (@first, @last, @email, @spec);
+                                            SELECT LAST_INSERT_ID();";
+                        
+                        using var cmdDoc = new MySqlCommand(sqlDoctor, connection, transaction);
+                        cmdDoc.Parameters.AddWithValue("@first", model.FirstName);
+                        cmdDoc.Parameters.AddWithValue("@last", model.LastName);
+                        cmdDoc.Parameters.AddWithValue("@email", model.Email ?? (object)DBNull.Value);
+                        cmdDoc.Parameters.AddWithValue("@spec", model.Specialty ?? (object)DBNull.Value);
+                        
+                        newDoctorId = Convert.ToUInt64(await cmdDoc.ExecuteScalarAsync());
+                    }
+
+                    // 2. Create the User (linking the DoctorID if it exists)
+                    string sqlUser = @"INSERT INTO Users (Username, Password, Type, DoctorID) 
+                                    VALUES (@user, @pass, @type, @docId)";
+
+                    using var cmdUser = new MySqlCommand(sqlUser, connection, transaction);
+                    cmdUser.Parameters.AddWithValue("@user", model.Username);
+                    cmdUser.Parameters.AddWithValue("@pass", model.Password); // In production, Hash this password!
+                    cmdUser.Parameters.AddWithValue("@type", model.UserType);
+                    cmdUser.Parameters.AddWithValue("@docId", newDoctorId ?? (object)DBNull.Value);
+
+                    await cmdUser.ExecuteNonQueryAsync();
+
+                    // 3. Commit changes
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    // If anything goes wrong, roll back (undo) the Doctor insertion
+                    await transaction.RollbackAsync();
+                    throw; // Re-throw to be caught by the outer catch
+                }
+
+                return RedirectToAction("ManageUsers");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in CreateUser POST: {ex}");
-                ModelState.AddModelError("", "An error occurred while creating the user (e.g., duplicate username).");
-                await PopulateCreateUserDropdowns();
+                // Log error here
+                ModelState.AddModelError("", "Error creating user: " + ex.Message);
                 return View(model);
             }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> DeleteUser(int id)

@@ -3,24 +3,25 @@
     ViewData["Title"] = "Create Consultation";
 }
 
-<h2>Create Consultation</h2>
+<h2 class="text-center">@ViewData["Title"]</h2>
 
-<form asp-action="CreateConsultation" method="post">
+<form asp-action="CreateConsultation" method="post" class="glass-container p-4">
     @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="card mb-3">
+    <!-- 1. Patient -->
+    <div class="card mb-3 glass-container">
         <div class="card-header">
             <h4>1. Patient</h4>
         </div>
         <div class="card-body">
-            <div class="form-check mb-2">
+            <div class="form-check mb-3">
                 <input asp-for="IsNewPatient" type="checkbox" class="form-check-input" id="isNewPatientCheck" />
                 <label class="form-check-label" for="isNewPatientCheck">Create New Patient</label>
             </div>
 
             <div id="existingPatientBlock">
-                <div class="form-group">
+                <div class="form-group mb-2">
                     <label asp-for="ExistingPatientID" class="control-label"></label>
                     <select asp-for="ExistingPatientID" class="form-control" asp-items="ViewBag.Patients">
                         <option value="">-- Select a patient --</option>
@@ -29,53 +30,56 @@
             </div>
 
             <div id="newPatientBlock" style="display: none;">
-                <div class="form-group mb-2">
-                    <label asp-for="NewPatient.FirstName"></label>
-                    <input asp-for="NewPatient.FirstName" class="form-control" />
+                <div class="form-floating mb-2">
+                    <input asp-for="NewPatient.FirstName" class="form-control" placeholder="First Name" />
+                    <label asp-for="NewPatient.FirstName">First Name</label>
                 </div>
-                <div class="form-group mb-2">
-                    <label asp-for="NewPatient.LastName"></label>
-                    <input asp-for="NewPatient.LastName" class="form-control" />
+                <div class="form-floating mb-2">
+                    <input asp-for="NewPatient.LastName" class="form-control" placeholder="Last Name" />
+                    <label asp-for="NewPatient.LastName">Last Name</label>
                 </div>
-                <div class="form-group mb-2">
-                    <label asp-for="NewPatient.Email"></label>
-                    <input asp-for="NewPatient.Email" type="email" class="form-control" />
+                <div class="form-floating mb-2">
+                    <input asp-for="NewPatient.Email" type="email" class="form-control" placeholder="Email" />
+                    <label asp-for="NewPatient.Email">Email</label>
                 </div>
-                <div class="form-group mb-2">
-                    <label asp-for="NewPatient.Address"></label>
-                    <input asp-for="NewPatient.Address" class="form-control" />
+                <div class="form-floating mb-2">
+                    <input asp-for="NewPatient.Address" class="form-control" placeholder="Address" />
+                    <label asp-for="NewPatient.Address">Address</label>
                 </div>
-                <div class="form-group mb-2">
-                    <label asp-for="NewPatient.Insurance"></label>
-                    <input asp-for="NewPatient.Insurance" class="form-control" />
+                <div class="form-floating mb-2">
+                    <input asp-for="NewPatient.Insurance" class="form-control" placeholder="Insurance" />
+                    <label asp-for="NewPatient.Insurance">Insurance</label>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card mb-3">
+    <!-- 2. Consultation Details -->
+    <div class="card mb-3 glass-container">
         <div class="card-header">
             <h4>2. Consultation Details</h4>
         </div>
         <div class="card-body">
-            <div class="form-group mb-2">
-                <label asp-for="Disease"></label>
-                <input asp-for="Disease" class="form-control" />
+            <div class="form-floating mb-3">
+                <input asp-for="Disease" class="form-control" placeholder="Disease" />
+                <label asp-for="Disease">Disease</label>
                 <span asp-validation-for="Disease" class="text-danger"></span>
             </div>
-            <div class="form-group mb-2">
-                <label asp-for="Observation"></label>
-                <textarea asp-for="Observation" class="form-control"></textarea>
+            <div class="form-floating mb-3">
+                <textarea asp-for="Observation" class="form-control" placeholder="Observation" style="height: 100px"></textarea>
+                <label asp-for="Observation">Observation</label>
             </div>
         </div>
     </div>
 
-    <div class="card mb-3">
+    <!-- 3. Receipt -->
+    <div class="card mb-3 glass-container">
         <div class="card-header">
             <h4>3. Receipt (Optional)</h4>
         </div>
         <div class="card-body">
             <p>Fill out lines to add a medicine. Leave blank to ignore.</p>
+
             <div class="row g-3 mb-2 border-bottom pb-2">
                 <div class="col-md-5"><strong>Medicine</strong></div>
                 <div class="col-md-2"><strong>Quantity</strong></div>
@@ -84,7 +88,7 @@
 
             @for (int i = 0; i < Model.Medicines.Count; i++)
             {
-                <div class="row g-3 mb-2">
+                <div class="row g-3 mb-2 align-items-center">
                     <div class="col-md-5">
                         <select asp-for="Medicines[i].MedicineID" class="form-control" asp-items="ViewBag.Medicines">
                             <option value="0">-- Select Medicine --</option>
@@ -101,8 +105,10 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">Create Consultation</button>
-    <a asp-action="ManageConsultations" class="btn btn-secondary">Cancel</a>
+    <div class="d-flex gap-3 mt-3">
+        <button type="submit" class="btn btn-primary">Create Consultation</button>
+        <a asp-action="ManageConsultations" class="btn btn-secondary">Cancel</a>
+    </div>
 </form>
 
 @section Scripts {
@@ -121,10 +127,10 @@
                     existingPatientBlock.style.display = 'block';
                 }
             }
-            
+
             // Run on page load
             togglePatientBlocks();
-            
+
             // Run on checkbox click
             checkbox.addEventListener('change', togglePatientBlocks);
         });

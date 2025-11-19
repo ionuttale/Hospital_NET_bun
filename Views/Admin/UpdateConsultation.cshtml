@@ -3,38 +3,55 @@
     ViewData["Title"] = "Update Consultation";
 }
 
-<h2>Update Consultation</h2>
+<h2>@ViewData["Title"]</h2>
 
-<form asp-action="UpdateConsultation" method="post">
+<form asp-action="UpdateConsultation" method="post" class="glass-container">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="ConsultationID" />
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="form-floating mb-3">
-        <select asp-for="PatientID" class="form-select" asp-items="ViewBag.Patients" placeholder="Patient"></select>
+    <!-- Patient Selection -->
+    <div class="form-group">
         <label asp-for="PatientID">Patient</label>
+        <select asp-for="PatientID" class="form-select" asp-items="ViewBag.Patients">
+            <option value="">-- Select Patient --</option>
+        </select>
+        <span asp-validation-for="PatientID" class="text-danger"></span>
     </div>
 
-    <div class="form-floating mb-3">
-        <select asp-for="DoctorID" class="form-select" asp-items="ViewBag.Doctors" readonly="readonly"></select>
+    <!-- Doctor Selection (readonly) -->
+    <div class="form-group">
         <label asp-for="DoctorID">Doctor</label>
+        <select asp-for="DoctorID" class="form-select" asp-items="ViewBag.Doctors" disabled>
+            <option value="">-- Select Doctor --</option>
+        </select>
+        <span asp-validation-for="DoctorID" class="text-danger"></span>
     </div>
 
-    <div class="form-floating mb-3">
-        <input asp-for="ConsultationDate" type="datetime-local" class="form-control" placeholder="Date" />
+    <!-- Consultation Date -->
+    <div class="form-group">
         <label asp-for="ConsultationDate">Date</label>
+        <input asp-for="ConsultationDate" type="datetime-local" class="form-control" />
+        <span asp-validation-for="ConsultationDate" class="text-danger"></span>
     </div>
 
-    <div class="form-floating mb-3">
+    <!-- Disease -->
+    <div class="form-group">
+        <label asp-for="Disease">Disease</label>
         <input asp-for="Disease" class="form-control" placeholder="Disease" />
-        <label asp-for="Disease"></label>
+        <span asp-validation-for="Disease" class="text-danger"></span>
     </div>
 
-    <div class="form-floating mb-3">
+    <!-- Observation -->
+    <div class="form-group">
+        <label asp-for="Observation">Observation</label>
         <textarea asp-for="Observation" class="form-control" placeholder="Observation" style="height: 100px"></textarea>
-        <label asp-for="Observation"></label>
+        <span asp-validation-for="Observation" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a asp-action="ManageConsultations" class="btn btn-secondary">Cancel</a>
+    <!-- Action Buttons -->
+    <div class="d-flex">
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a asp-action="ManageConsultations" class="btn btn-secondary">Cancel</a>
+    </div>
 </form>

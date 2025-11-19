@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Hospital_simple</title>
 
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Google Fonts: Segoe UI alternative or use system font -->
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <!-- Login page CSS only -->
     <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
 </head>
 <body>
-    
+
     @RenderBody()
 
     @await RenderSectionAsync("Scripts", required: false)

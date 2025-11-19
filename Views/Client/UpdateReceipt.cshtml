@@ -3,56 +3,60 @@
     ViewData["Title"] = "Update Receipt";
 }
 
-<h2>Update Receipt</h2>
+<h2 class="text-center">@ViewData["Title"]</h2>
 
-<form asp-action="UpdateReceipt" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="ReceiptID" />
-    <input type="hidden" asp-for="ConsultationID" />
+<div class="glass-container p-3">
+    <form asp-action="UpdateReceipt" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ReceiptID" />
+        <input type="hidden" asp-for="ConsultationID" />
 
-    <div class="row">
-        <div class="col-md-4">
-            <strong>Patient:</strong> @Model.PatientName
+        <div class="row mb-3">
+            <div class="col-md-4"><strong>Patient:</strong> @Model.PatientName</div>
+            <div class="col-md-4"><strong>Doctor:</strong> @Model.DoctorName</div>
+            <div class="col-md-4"><strong>Disease:</strong> @Model.Disease</div>
         </div>
-        <div class="col-md-4">
-            <strong>Doctor:</strong> @Model.DoctorName
-        </div>
-        <div class="col-md-4">
-            <strong>Disease:</strong> @Model.Disease
-        </div>
-    </div>
 
-    <hr />
-    
-    <h4>Prescribed Medicines</h4>
+        <hr />
 
-    @if (!Model.Medicines.Any())
-    {
-        <p>No medicines are currently on this receipt.</p>
-    }
+        <h4 class="mb-3">Prescribed Medicines</h4>
 
-    @for (int i = 0; i < Model.Medicines.Count; i++)
-    {
-        <input type="hidden" asp-for="Medicines[i].ReceiptMedicineID" />
+        @if (!Model.Medicines.Any())
+        {
+            <p>No medicines are currently on this receipt.</p>
+        }
 
-        <div class="row g-3 mb-2 align-items-end p-2 border rounded">
-            <div class="col-md-4">
-                <label asp-for="Medicines[i].Medicine.MedicineID" class="form-label">Medicine</label>
-                <select asp-for="Medicines[i].Medicine.MedicineID" class="form-control" 
-                        asp-items="@(new SelectList(ViewBag.Medicines, "Value", "Text", Model.Medicines[i].Medicine.MedicineID))">
-                </select>
+        @for (int i = 0; i < Model.Medicines.Count; i++)
+        {
+            <input type="hidden" asp-for="Medicines[i].ReceiptMedicineID" />
+
+            <div class="row g-3 mb-3 align-items-end p-3 border rounded glass-container">
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <select asp-for="Medicines[i].Medicine.MedicineID" class="form-select"
+                                asp-items="@(new SelectList(ViewBag.Medicines, "Value", "Text", Model.Medicines[i].Medicine.MedicineID))">
+                        </select>
+                        <label asp-for="Medicines[i].Medicine.MedicineID">Medicine</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-floating">
+                        <input type="number" asp-for="Medicines[i].Quantity" class="form-control" placeholder="Quantity" />
+                        <label asp-for="Medicines[i].Quantity">Quantity</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="Medicines[i].Dosage" class="form-control" placeholder="Dosage" />
+                        <label asp-for="Medicines[i].Dosage">Dosage</label>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-2">
-                <label asp-for="Medicines[i].Quantity" class="form-label">Quantity</label>
-                <input type="number" asp-for="Medicines[i].Quantity" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label asp-for="Medicines[i].Dosage" class="form-label">Dosage</label>
-                <input asp-for="Medicines[i].Dosage" class="form-control" />
-            </div>
-        </div>
-    }
+        }
 
-    <button type="submit" class="btn btn-primary mt-3">Update Medicines</button>
-    <a asp-action="ManageReceipts" class="btn btn-secondary mt-3">Cancel</a>
-</form>
+        <div class="d-flex gap-2 flex-wrap mt-3">
+            <button type="submit" class="btn btn-primary">Update Medicines</button>
+            <a asp-action="ManageReceipts" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

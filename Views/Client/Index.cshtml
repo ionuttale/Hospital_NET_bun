@@ -3,50 +3,51 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome back, doctor @ViewData["DoctorFullName"]!</h1>
+<div class="text-center mb-4">
+    <h1 class="dashboard-title">Welcome back, doctor @ViewData["DoctorFullName"]!</h1>
 </div>
 
-<hr />
-
-<div class="row text-center mb-4">
-    <div class="col-md-6 offset-md-3">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <h5 class="card-title">My Patients</h5>
-                <p class="card-text display-4">@ViewData["MyPatientsCount"]</p>
-                <a asp-action="ManagePatients" class="btn btn-outline-light">View Patients</a>
-            </div>
+<div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+        <div class="glass-container text-center">
+            <div class="stat-title">My Patients</div>
+            <div class="stat-number display-4">@ViewData["MyPatientsCount"]</div>
+            <a asp-action="ManagePatients" class="btn btn-primary mt-2">View Patients</a>
         </div>
     </div>
 </div>
 
-<h3>Your Last 3 Consultations</h3>
+<h3 class="mt-4 text-center">Your Last 3 Consultations</h3>
 
 @if (!Model.Any())
 {
-    <p>You have no consultations on record.</p>
+    <div class="glass-container p-3 text-center">
+        <p>You have no consultations on record.</p>
+    </div>
 }
 else
 {
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Patient</th>
-                <th>Date</th>
-                <th>Disease</th>
-                <th>Observation</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+    <div class="glass-container p-3">
+        <table class="table table-striped table-bordered">
+            <thead>
                 <tr>
-                    <td>@Html.DisplayFor(modelItem => item.PatientName)</td>
-                    <td>@item.ConsultationDate.ToString("g")</td> <td>@Html.DisplayFor(modelItem => item.Disease)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Observation)</td>
+                    <th>Patient</th>
+                    <th>Date</th>
+                    <th>Disease</th>
+                    <th>Observation</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.PatientName)</td>
+                        <td>@item.ConsultationDate.ToString("g")</td>
+                        <td>@Html.DisplayFor(modelItem => item.Disease)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Observation)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }

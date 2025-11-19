@@ -4,28 +4,31 @@
     var totalPatients = (int)(ViewData["TotalPatients"] ?? 0);
 }
 
-<div class="content-card">
+<div class="glass-container">
 
     <h1 class="dashboard-title">@ViewData["Title"]</h1>
 
     <div class="row g-4">
+
         <div class="col-md-6">
             <div class="dashboard-stat-card">
                 <div class="stat-title">Total Doctors</div>
                 <div class="stat-number">@totalDoctors</div>
-                <a asp-action="ManageDoctors" class="btn btn-primary">Manage Doctors</a>
+                <a asp-action="ManageDoctors" class="btn">Manage Doctors</a>
             </div>
         </div>
-        
+
         <div class="col-md-6">
             <div class="dashboard-stat-card">
                 <div class="stat-title">Total Patients</div>
                 <div class="stat-number">@totalPatients</div>
-                <a asp-action="ManagePatients" class="btn btn-primary">Manage Patients</a>
+                <a asp-action="ManagePatients" class="btn">Manage Patients</a>
             </div>
         </div>
+
     </div>
-    <div class="dashboard-stat-card management-links">
+
+    <div class="dashboard-stat-card management-links mt-4">
         <div class="stat-title">Management Links</div>
         <div class="links-wrapper">
             <a asp-action="ManageUsers" class="btn btn-secondary">Manage Users</a>

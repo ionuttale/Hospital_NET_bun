@@ -41,21 +41,27 @@
                         <select asp-for="Medicines[i].MedicineID" class="form-select" asp-items="ViewBag.Medicines">
                             <option value="0">-- Select Medicine --</option>
                         </select>
+                        <span asp-validation-for="Medicines[i].MedicineID" class="text-danger"></span>
                     </div>
                     <div class="col-md-2">
-                        <input type="number" asp-for="Medicines[i].Quantity" class="form-control" placeholder="Qty" />
+                        <input type="number" asp-for="Medicines[i].Quantity" class="form-control" placeholder="Qty" min="0" />
+                        <span asp-validation-for="Medicines[i].Quantity" class="text-danger"></span>
                     </div>
                     <div class="col-md-5">
                         <input asp-for="Medicines[i].Dosage" class="form-control" placeholder="e.g., 2 times a day" />
+                        <span asp-validation-for="Medicines[i].Dosage" class="text-danger"></span>
                     </div>
                 </div>
             }
         </div>
 
         <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="btn">Create Receipt</button>
+            <button type="submit" class="btn btn-primary">Create Receipt</button>
             <a asp-action="ManageReceipts" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
-
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

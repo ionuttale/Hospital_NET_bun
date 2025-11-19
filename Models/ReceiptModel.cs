@@ -2,16 +2,16 @@ namespace Hospital_simple.Models;
 
 public class MedicineModel
 {
-    public required ulong MedicineID { get; set; }
-    public required string Name { get; set; }
+    public ulong MedicineID { get; set; }
+    public string Name { get; set; }
 }
 
 public class ReceiptMedicineModel
 {
-    public required ulong ReceiptMedicineID { get; set; }
-    public required MedicineModel Medicine { get; set; }
-    public required string Dosage { get; set; }
-    public required uint Quantity { get; set; } 
+    public ulong ReceiptMedicineID { get; set; }
+    public MedicineModel Medicine { get; set; }
+    public string Dosage { get; set; }
+    public uint Quantity { get; set; } 
 }
 
 public class ReceiptModel

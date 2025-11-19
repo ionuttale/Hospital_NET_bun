@@ -13,13 +13,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Hospital_simple</title>
 
-    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
+    <!-- Global styles -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
+    <!-- Sidebar / navbar styles -->
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
 </head>
 <body>
+
+    <!-- Sidebar toggle button -->
     <button class="toggle-btn" id="toggleBtn">☰</button>
 
+    <!-- Sidebar navigation -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h2>Hospital_simple</h2>
@@ -43,8 +48,6 @@
                 <li><a asp-controller="Client" asp-action="ManagePatients">Manage Patients</a></li>
                 <li><a asp-controller="Client" asp-action="ManageConsultations">Manage Consultations</a></li>
                 <li><a asp-controller="Client" asp-action="ManageReceipts">Manage Receipts</a></li>
-                @* This "Profile" link doesn't exist in your ClientController, so I'm commenting it out *@
-                @* <li><a asp-controller="Client" asp-action="Profile">Profile</a></li> *@
             }
 
             <li class="logout-item">
@@ -56,12 +59,13 @@
         </ul>
     </div>
 
+    <!-- Main content -->
     <div class="main-content" id="mainContent">
         @RenderBody()
     </div>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
