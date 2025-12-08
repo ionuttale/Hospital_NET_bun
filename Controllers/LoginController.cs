@@ -7,9 +7,6 @@ using MySqlConnector;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using static BCrypt.Net.BCrypt;
-using System;
-using System.Collections.Generic; // Added for List
-using System.Threading.Tasks; // Added for Task
 
 namespace Hospital_simple.Controllers;
 
@@ -28,7 +25,6 @@ public class LoginController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        // If already logged in, redirect based on role
         if (User.Identity != null && User.Identity.IsAuthenticated)
         {
             var role = User.FindFirstValue(ClaimTypes.Role)?.ToLower();
@@ -40,7 +36,6 @@ public class LoginController : Controller
             };
         }
 
-        // Anonymous user sees login page
         return View();
     }
 
@@ -58,34 +53,30 @@ public class LoginController : Controller
             string storedHash = null;
             int userId = 0;
             string userRole = null;
-            ulong? doctorId = null; // <-- ADDED: To store the DoctorID
+            ulong? doctorId = null; 
 
             await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
             await connection.OpenAsync();
 
-            // --- MODIFIED SQL: Added DoctorID to the SELECT ---
             string sql = "SELECT UserID, Password, UserType, DoctorID FROM Users WHERE Username = @username";
             await using var command = new MySqlCommand(sql, connection);
             command.Parameters.AddWithValue("@username", model.Username);
 
-            // --- Manually open/close reader to fix MARS error ---
             using (var reader = await command.ExecuteReaderAsync())
             {
                 if (await reader.ReadAsync())
                 {
                     storedHash = reader.GetString("Password").Trim();
                     userId = reader.GetInt32("UserID");
-                    userRole = reader.GetString("UserType").ToLower(); // normalize
+                    userRole = reader.GetString("UserType").ToLower(); 
                     
-                    // --- ADDED: Get the DoctorID (it can be null) ---
                     doctorId = reader.IsDBNull(reader.GetOrdinal("DoctorID")) ? null : (ulong?)reader.GetInt32("DoctorID");
                 }
-            } // --- Reader is now closed ---
+            } 
 
 
             if (storedHash != null && CheckPassword(storedHash, model.Password))
             {
-                // Update the LastLogin field
                 try
                 {
                     string updateSql = "UPDATE Users SET LastLogin = @now WHERE UserID = @id";
@@ -96,39 +87,31 @@ public class LoginController : Controller
                 }
                 catch (Exception ex)
                 {
-                    // Log the error but don't block the login
                     _logger.LogError(ex, "Failed to update LastLogin for UserID {UserId}", userId);
                 }
                 
-                // --- START MODIFIED CLAIMS LOGIC ---
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, model.Username),
                     new Claim(ClaimTypes.Role, userRole)
                 };
 
-                // This is the key fix:
-                // If the user is a 'client' (doctor), their identity for the app is their DoctorID.
-                // If they are an 'admin', their identity is their UserID.
+        
                 if (userRole == "client")
                 {
                     if (!doctorId.HasValue)
                     {
-                        // This user is a 'client' but isn't linked to a doctor. This is a data error.
                         _logger.LogError("Client user {Username} has no associated DoctorID.", model.Username);
                         ModelState.AddModelError(string.Empty, "Client account is not linked to a doctor.");
                         return View(model);
                     }
                     
-                    // Store the DoctorID as the main identifier
                     claims.Add(new Claim(ClaimTypes.NameIdentifier, doctorId.Value.ToString()));
                 }
-                else // For 'admin'
+                else 
                 {
-                    // Store the UserID as the main identifier
                     claims.Add(new Claim(ClaimTypes.NameIdentifier, userId.ToString()));
                 }
-                // --- END MODIFIED CLAIMS LOGIC ---
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -145,7 +128,6 @@ public class LoginController : Controller
 
                 _logger.LogInformation("User {Username} logged in successfully as {Role}.", model.Username, userRole);
 
-                // Redirect based on role
                 return userRole switch
                 {
                     "admin" => RedirectToAction("Index", "Admin"),

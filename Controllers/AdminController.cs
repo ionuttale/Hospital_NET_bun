@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using BCrypt;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Linq; // Added for .Any()
+using System.Linq; 
 
 namespace Hospital_simple.Controllers
 {
@@ -108,17 +108,14 @@ namespace Hospital_simple.Controllers
                 await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
                 await connection.OpenAsync();
                 
-                // Start a transaction
                 await using var transaction = await connection.BeginTransactionAsync();
 
                 ulong? newDoctorId = null;
 
                 try 
                 {
-                    // 1. If UserType is 'client', create the Doctor first
                     if (model.UserType == "client")
                     {
-                        // Basic validation for doctor fields
                         if (string.IsNullOrWhiteSpace(model.FirstName) || string.IsNullOrWhiteSpace(model.LastName))
                         {
                             ModelState.AddModelError("", "First Name and Last Name are required for Doctors.");
@@ -138,33 +135,29 @@ namespace Hospital_simple.Controllers
                         newDoctorId = Convert.ToUInt64(await cmdDoc.ExecuteScalarAsync());
                     }
 
-                    // 2. Create the User (linking the DoctorID if it exists)
                     string sqlUser = @"INSERT INTO Users (Username, Password, Type, DoctorID) 
                                     VALUES (@user, @pass, @type, @docId)";
 
                     using var cmdUser = new MySqlCommand(sqlUser, connection, transaction);
                     cmdUser.Parameters.AddWithValue("@user", model.Username);
-                    cmdUser.Parameters.AddWithValue("@pass", model.Password); // In production, Hash this password!
+                    cmdUser.Parameters.AddWithValue("@pass", model.Password); 
                     cmdUser.Parameters.AddWithValue("@type", model.UserType);
                     cmdUser.Parameters.AddWithValue("@docId", newDoctorId ?? (object)DBNull.Value);
 
                     await cmdUser.ExecuteNonQueryAsync();
 
-                    // 3. Commit changes
                     await transaction.CommitAsync();
                 }
                 catch (Exception)
                 {
-                    // If anything goes wrong, roll back (undo) the Doctor insertion
                     await transaction.RollbackAsync();
-                    throw; // Re-throw to be caught by the outer catch
+                    throw; 
                 }
 
                 return RedirectToAction("ManageUsers");
             }
             catch (Exception ex)
             {
-                // Log error here
                 ModelState.AddModelError("", "Error creating user: " + ex.Message);
                 return View(model);
             }
@@ -229,16 +222,13 @@ namespace Hospital_simple.Controllers
             return View(doctors);
         }
 
-        // --- UPDATED CreateDoctor (GET) ---
         // GET: Admin/CreateDoctor
         [HttpGet]
         public IActionResult CreateDoctor()
         {
-            // Now returns the new combined view model
             return View(new CreateDoctorUserModel());
         }
 
-        // --- UPDATED CreateDoctor (POST) ---
         // POST: Admin/CreateDoctor
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -249,18 +239,16 @@ namespace Hospital_simple.Controllers
                 return View(model);
             }
 
-            // Use a transaction to ensure both Doctor and User are created
             await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
             await connection.OpenAsync();
             await using var transaction = await connection.BeginTransactionAsync();
 
             try
             {
-                // 1. Create the Doctor
                 string sqlDoctor = @"
                     INSERT INTO Doctors (FirstName, LastName, Email, Specialization)
                     VALUES (@first, @last, @email, @spec);
-                    SELECT LAST_INSERT_ID();"; // Get the new DoctorID
+                    SELECT LAST_INSERT_ID();"; 
                 
                 using var cmdDoctor = new MySqlCommand(sqlDoctor, connection, transaction);
                 cmdDoctor.Parameters.AddWithValue("@first", model.FirstName);
@@ -268,30 +256,25 @@ namespace Hospital_simple.Controllers
                 cmdDoctor.Parameters.AddWithValue("@email", model.Email);
                 cmdDoctor.Parameters.AddWithValue("@spec", model.Specialization ?? (object)DBNull.Value);
 
-                // Get the new DoctorID back from the insert
                 ulong newDoctorId = Convert.ToUInt64(await cmdDoctor.ExecuteScalarAsync());
 
-                // 2. Create the linked User
-                // WARNING: Storing plain text passwords!
                 string sqlUser = @"
                     INSERT INTO Users (Username, Password, UserType, DoctorID)
                     VALUES (@user, @pass, 'client', @docId)";
                 
                 using var cmdUser = new MySqlCommand(sqlUser, connection, transaction);
                 cmdUser.Parameters.AddWithValue("@user", model.Username);
-                cmdUser.Parameters.AddWithValue("@pass", model.Password); // PLAIN TEXT!
+                cmdUser.Parameters.AddWithValue("@pass", model.Password);
                 cmdUser.Parameters.AddWithValue("@docId", newDoctorId);
 
                 await cmdUser.ExecuteNonQueryAsync();
 
-                // 3. If both succeeded, commit the transaction
                 await transaction.CommitAsync();
                 
                 return RedirectToAction(nameof(ManageDoctors));
             }
             catch (Exception ex)
             {
-                // 4. If anything failed, roll back all changes
                 await transaction.RollbackAsync();
                 Console.WriteLine($"Error in CreateDoctor POST: {ex}");
                 ModelState.AddModelError("", $"An error occurred: {ex.Message}");
@@ -375,19 +358,16 @@ namespace Hospital_simple.Controllers
                 await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
                 await connection.OpenAsync();
 
-                // This deletes the User account first (if it exists)
                 string deleteUserSql = "DELETE FROM Users WHERE DoctorID=@id AND UserType='client'";
                 using var userCmd = new MySqlCommand(deleteUserSql, connection);
                 userCmd.Parameters.AddWithValue("@id", id);
                 await userCmd.ExecuteNonQueryAsync();
 
-                // Set any remaining links in Users to NULL (e.g., if an admin was linked)
                 string updateUsersSql = "UPDATE Users SET DoctorID=NULL WHERE DoctorID=@id";
                 using var updateCmd = new MySqlCommand(updateUsersSql, connection);
                 updateCmd.Parameters.AddWithValue("@id", id);
                 await updateCmd.ExecuteNonQueryAsync();
                 
-                // Now it's safe to delete the Doctor
                 string deleteSql = "DELETE FROM Doctors WHERE DoctorID=@id";
                 using var deleteCmd = new MySqlCommand(deleteSql, connection);
                 deleteCmd.Parameters.AddWithValue("@id", id);
@@ -396,7 +376,6 @@ namespace Hospital_simple.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in DeleteDoctor {id}: {ex}");
-                // Handle potential foreign key errors if doctor is still in consultations
                 TempData["ErrorMessage"] = "Could not delete doctor. They may still be linked to consultations.";
             }
 
@@ -734,7 +713,6 @@ namespace Hospital_simple.Controllers
                 await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
                 await connection.OpenAsync();
 
-                // 1. QUERY UPDATED: Added LEFT JOIN and r.ReceiptID
                 string sql = @"
                     SELECT c.ConsultID, c.PatientID, p.FirstName AS PatientFirst, p.LastName AS PatientLast,
                         c.DoctorID, d.FirstName AS DoctorFirst, d.LastName AS DoctorLast,
@@ -762,7 +740,6 @@ namespace Hospital_simple.Controllers
                         Disease = reader.IsDBNull(reader.GetOrdinal("Disease")) ? "" : reader.GetString("Disease"),
                         Observation = reader.IsDBNull(reader.GetOrdinal("Observation")) ? "" : reader.GetString("Observation"),
                         
-                        // 2. ADDED THIS LINE: To populate the ReceiptID property
                         ReceiptID = reader.IsDBNull(reader.GetOrdinal("ReceiptID")) ? null : (ulong?)reader.GetInt32("ReceiptID")
                     });
                 }
@@ -779,7 +756,6 @@ namespace Hospital_simple.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateConsultation()
         {
-            // Use the existing helper, but we need to create it
             await PopulateConsultationDropdowns(new ConsultationModels());
             return View();
         }
@@ -789,7 +765,6 @@ namespace Hospital_simple.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateConsultation(ConsultationModels model)
         {
-            // Only use the fields we need for creation
             if (model.PatientID == 0 || model.DoctorID == 0 || string.IsNullOrEmpty(model.Disease))
             {
                 ModelState.AddModelError("", "Please select a Patient, Doctor, and enter a Disease.");
@@ -882,7 +857,6 @@ namespace Hospital_simple.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    // Repopulate dropdowns before returning
                     await PopulateConsultationDropdowns(model);
                     return View(model);
                 }
@@ -909,7 +883,6 @@ namespace Hospital_simple.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in POST UpdateConsultation: {ex.Message}");
-                // Repopulate dropdowns before returning
                 await PopulateConsultationDropdowns(model);
                 return View(model);
             }
@@ -925,7 +898,6 @@ namespace Hospital_simple.Controllers
                 await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
                 await connection.OpenAsync();
 
-                // --- MARS FIX (from ClientController) ---
                 var receiptIdsToDelete = new List<ulong>();
                 string findReceiptsSql = "SELECT ReceiptID FROM Receipts WHERE ConsultID=@id";
                 using (var findCmd = new MySqlCommand(findReceiptsSql, connection))
@@ -937,7 +909,7 @@ namespace Hospital_simple.Controllers
                         {
                             receiptIdsToDelete.Add((ulong)reader.GetInt32("ReceiptID"));
                         }
-                    } // Reader closed
+                    } 
                 }
 
                 if (receiptIdsToDelete.Any())
@@ -949,7 +921,6 @@ namespace Hospital_simple.Controllers
                         await cmdMed.ExecuteNonQueryAsync();
                     }
                 }
-                // --- End MARS FIX ---
 
                 string deleteReceiptSql = "DELETE FROM Receipts WHERE ConsultID=@id";
                 using var cmdReceipt = new MySqlCommand(deleteReceiptSql, connection);
@@ -1049,7 +1020,6 @@ namespace Hospital_simple.Controllers
         {
             await PopulateCreateReceiptDropdowns();
             var model = new CreateReceiptModel();
-            // Add 5 empty slots
             for (int i = 0; i < 5; i++)
             {
                 model.Medicines.Add(new ReceiptMedicineLineItem());
@@ -1079,7 +1049,6 @@ namespace Hospital_simple.Controllers
 
             try
             {
-                // 1. Create the main Receipt
                 string sqlReceipt = @"
                     INSERT INTO Receipts (ConsultID) VALUES (@consultId);
                     SELECT LAST_INSERT_ID();";
@@ -1088,7 +1057,6 @@ namespace Hospital_simple.Controllers
                 cmdReceipt.Parameters.AddWithValue("@consultId", model.ConsultationID);
                 ulong receiptId = Convert.ToUInt64(await cmdReceipt.ExecuteScalarAsync());
 
-                // 2. Add each medicine
                 foreach (var med in validMedicines)
                 {
                     string sqlMed = @"
@@ -1127,7 +1095,6 @@ namespace Hospital_simple.Controllers
                 await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
                 await connection.OpenAsync();
 
-                // Load receipt with medicines
                 string sql = @"
                     SELECT r.ReceiptID, r.ConsultID, c.Disease,
                         p.PatientID, p.FirstName AS PatientFirst, p.LastName AS PatientLast,
@@ -1188,7 +1155,6 @@ namespace Hospital_simple.Controllers
                 await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
                 await connection.OpenAsync();
 
-                // Load receipt with medicines
                 string sql = @"
                     SELECT r.ReceiptID, r.ConsultID, c.Disease,
                         p.PatientID, p.FirstName AS PatientFirst, p.LastName AS PatientLast,
@@ -1230,7 +1196,6 @@ namespace Hospital_simple.Controllers
                     }
                 }
 
-                // Load all medicines for dropdown
                 var medicinesList = new List<SelectListItem>();
                 await reader.CloseAsync();
 
@@ -1265,7 +1230,6 @@ namespace Hospital_simple.Controllers
                 await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
                 await connection.OpenAsync();
 
-                // Update Receipt_Medicines
                 foreach (var med in model.Medicines)
                 {
                     string updateSql = @"
@@ -1283,7 +1247,6 @@ namespace Hospital_simple.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Error updating receipt: {ex.Message}");
-                // stay on same page if error
                 return await UpdateReceipt((ulong)model.ReceiptID);
             }
 
@@ -1321,7 +1284,6 @@ namespace Hospital_simple.Controllers
         
         // ------------------------- HELPER METHODS -------------------------
 
-        // Helper for Create/Update Consultation
         private async Task PopulateConsultationDropdowns(ConsultationModels model)
         {
             try
@@ -1369,7 +1331,6 @@ namespace Hospital_simple.Controllers
             }
         }
 
-        // Helper for Create User
         private async Task PopulateCreateUserDropdowns()
         {
             try
@@ -1378,7 +1339,6 @@ namespace Hospital_simple.Controllers
                 await connection.OpenAsync();
                 
                 var doctors = new List<SelectListItem>();
-                // Only show doctors that DON'T already have a user account
                 string sqlDoctors = @"
                     SELECT DoctorID, FirstName, LastName 
                     FROM Doctors 
@@ -1404,7 +1364,6 @@ namespace Hospital_simple.Controllers
             }
         }
 
-        // Helper for Create Receipt
         private async Task PopulateCreateReceiptDropdowns()
         {
             try
@@ -1412,7 +1371,6 @@ namespace Hospital_simple.Controllers
                 await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
                 await connection.OpenAsync();
 
-                // Get consultations that DON'T already have a receipt
                 var consultations = new List<SelectListItem>();
                 string sqlConsult = @"
                     SELECT c.ConsultID, c.Date, p.FirstName, p.LastName
@@ -1434,7 +1392,6 @@ namespace Hospital_simple.Controllers
                 }
                 ViewBag.Consultations = consultations;
 
-                // Get all medicines
                 var medicines = new List<SelectListItem>();
                 string sqlMeds = "SELECT MedicineID, Name FROM Medicines ORDER BY Name";
                 using (var cmdMeds = new MySqlCommand(sqlMeds, connection))
