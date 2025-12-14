@@ -9,20 +9,20 @@
     @Html.AntiForgeryToken()
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <!-- 1. Patient -->
     <div class="card mb-3 glass-container">
         <div class="card-header">
             <h4>1. Patient</h4>
         </div>
         <div class="card-body">
-            <div class="form-check mb-3">
-                <input asp-for="IsNewPatient" type="checkbox" class="form-check-input" id="isNewPatientCheck" />
-                <label class="form-check-label" for="isNewPatientCheck">Create New Patient</label>
+            
+            <div class="d-flex align-items-center mb-3">
+                <label class="form-check-label me-2" for="isNewPatientCheck">Create New Patient</label>
+                <input asp-for="IsNewPatient" type="checkbox" class="form-check-input" id="isNewPatientCheck" style="width: auto;" />
             </div>
 
             <div id="existingPatientBlock">
-                <div class="form-group mb-2">
-                    <label asp-for="ExistingPatientID" class="control-label"></label>
+                <div class="mb-3">
+                    <label asp-for="ExistingPatientID" class="form-label">Existing Patient</label>
                     <select asp-for="ExistingPatientID" class="form-control" asp-items="ViewBag.Patients">
                         <option value="">-- Select a patient --</option>
                     </select>
@@ -30,49 +30,47 @@
             </div>
 
             <div id="newPatientBlock" style="display: none;">
-                <div class="form-floating mb-2">
+                <div class="mb-3">
+                    <label asp-for="NewPatient.FirstName" class="form-label">First Name</label>
                     <input asp-for="NewPatient.FirstName" class="form-control" placeholder="First Name" />
-                    <label asp-for="NewPatient.FirstName">First Name</label>
                 </div>
-                <div class="form-floating mb-2">
+                <div class="mb-3">
+                    <label asp-for="NewPatient.LastName" class="form-label">Last Name</label>
                     <input asp-for="NewPatient.LastName" class="form-control" placeholder="Last Name" />
-                    <label asp-for="NewPatient.LastName">Last Name</label>
                 </div>
-                <div class="form-floating mb-2">
+                <div class="mb-3">
+                    <label asp-for="NewPatient.Email" class="form-label">Email</label>
                     <input asp-for="NewPatient.Email" type="email" class="form-control" placeholder="Email" />
-                    <label asp-for="NewPatient.Email">Email</label>
                 </div>
-                <div class="form-floating mb-2">
+                <div class="mb-3">
+                    <label asp-for="NewPatient.Address" class="form-label">Address</label>
                     <input asp-for="NewPatient.Address" class="form-control" placeholder="Address" />
-                    <label asp-for="NewPatient.Address">Address</label>
                 </div>
-                <div class="form-floating mb-2">
+                <div class="mb-3">
+                    <label asp-for="NewPatient.Insurance" class="form-label">Insurance</label>
                     <input asp-for="NewPatient.Insurance" class="form-control" placeholder="Insurance" />
-                    <label asp-for="NewPatient.Insurance">Insurance</label>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 2. Consultation Details -->
     <div class="card mb-3 glass-container">
         <div class="card-header">
             <h4>2. Consultation Details</h4>
         </div>
         <div class="card-body">
-            <div class="form-floating mb-3">
+            <div class="mb-3">
+                <label asp-for="Disease" class="form-label">Disease</label>
                 <input asp-for="Disease" class="form-control" placeholder="Disease" />
-                <label asp-for="Disease">Disease</label>
                 <span asp-validation-for="Disease" class="text-danger"></span>
             </div>
-            <div class="form-floating mb-3">
+            <div class="mb-3">
+                <label asp-for="Observation" class="form-label">Observation</label>
                 <textarea asp-for="Observation" class="form-control" placeholder="Observation" style="height: 100px"></textarea>
-                <label asp-for="Observation">Observation</label>
             </div>
         </div>
     </div>
 
-    <!-- 3. Receipt -->
     <div class="card mb-3 glass-container">
         <div class="card-header">
             <h4>3. Receipt (Optional)</h4>
@@ -130,7 +128,6 @@
 
             // Run on page load
             togglePatientBlocks();
-
             // Run on checkbox click
             checkbox.addEventListener('change', togglePatientBlocks);
         });

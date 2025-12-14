@@ -7,10 +7,10 @@
 
 <form asp-action="UpdateConsultation" method="post" class="glass-container">
     @Html.AntiForgeryToken()
+    
     <input type="hidden" asp-for="ConsultationID" />
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <input type="hidden" asp-for="DoctorID" /> <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <!-- Patient Selection -->
     <div class="form-group">
         <label asp-for="PatientID">Patient</label>
         <select asp-for="PatientID" class="form-select" asp-items="ViewBag.Patients">
@@ -19,7 +19,6 @@
         <span asp-validation-for="PatientID" class="text-danger"></span>
     </div>
 
-    <!-- Doctor Selection (readonly) -->
     <div class="form-group">
         <label asp-for="DoctorID">Doctor</label>
         <select asp-for="DoctorID" class="form-select" asp-items="ViewBag.Doctors" disabled>
@@ -28,29 +27,25 @@
         <span asp-validation-for="DoctorID" class="text-danger"></span>
     </div>
 
-    <!-- Consultation Date -->
     <div class="form-group">
         <label asp-for="ConsultationDate">Date</label>
         <input asp-for="ConsultationDate" type="datetime-local" class="form-control" />
         <span asp-validation-for="ConsultationDate" class="text-danger"></span>
     </div>
 
-    <!-- Disease -->
     <div class="form-group">
         <label asp-for="Disease">Disease</label>
         <input asp-for="Disease" class="form-control" placeholder="Disease" />
         <span asp-validation-for="Disease" class="text-danger"></span>
     </div>
 
-    <!-- Observation -->
     <div class="form-group">
         <label asp-for="Observation">Observation</label>
         <textarea asp-for="Observation" class="form-control" placeholder="Observation" style="height: 100px"></textarea>
         <span asp-validation-for="Observation" class="text-danger"></span>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="d-flex">
+    <div class="d-flex gap-2 mt-3">
         <button type="submit" class="btn btn-primary">Update</button>
         <a asp-action="ManageConsultations" class="btn btn-secondary">Cancel</a>
     </div>

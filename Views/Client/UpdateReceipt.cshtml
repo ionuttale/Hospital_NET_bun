@@ -19,40 +19,47 @@
 
         <hr />
 
-        <h4 class="mb-3">Prescribed Medicines</h4>
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <h4 class="mb-0">Prescribed Medicines</h4>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="addMedicineRow()">
+                <i class="bi bi-plus-lg"></i> Add Medicine
+            </button>
+        </div>
 
         @if (!Model.Medicines.Any())
         {
-            <p>No medicines are currently on this receipt.</p>
+            <p id="no-meds-msg">No medicines are currently on this receipt.</p>
         }
 
-        @for (int i = 0; i < Model.Medicines.Count; i++)
-        {
-            <input type="hidden" asp-for="Medicines[i].ReceiptMedicineID" />
+        <div id="medicine-container">
+            @for (int i = 0; i < Model.Medicines.Count; i++)
+            {
+                <div class="row g-3 mb-3 align-items-end p-3 border rounded glass-container">
+                    <input type="hidden" asp-for="Medicines[i].ReceiptMedicineID" />
 
-            <div class="row g-3 mb-3 align-items-end p-3 border rounded glass-container">
-                <div class="col-md-4">
-                    <div class="form-floating">
-                        <select asp-for="Medicines[i].Medicine.MedicineID" class="form-select"
-                                asp-items="@(new SelectList(ViewBag.Medicines, "Value", "Text", Model.Medicines[i].Medicine.MedicineID))">
-                        </select>
-                        <label asp-for="Medicines[i].Medicine.MedicineID">Medicine</label>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select asp-for="Medicines[i].Medicine.MedicineID" class="form-select"
+                                    asp-items="@(new SelectList(ViewBag.Medicines, "Value", "Text", Model.Medicines[i].Medicine.MedicineID))">
+                            </select>
+                            <label>Medicine</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <input type="number" asp-for="Medicines[i].Quantity" class="form-control" placeholder="Quantity" />
+                            <label>Quantity</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="Medicines[i].Dosage" class="form-control" placeholder="Dosage" />
+                            <label>Dosage</label>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <div class="form-floating">
-                        <input type="number" asp-for="Medicines[i].Quantity" class="form-control" placeholder="Quantity" />
-                        <label asp-for="Medicines[i].Quantity">Quantity</label>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-floating">
-                        <input asp-for="Medicines[i].Dosage" class="form-control" placeholder="Dosage" />
-                        <label asp-for="Medicines[i].Dosage">Dosage</label>
-                    </div>
-                </div>
-            </div>
-        }
+            }
+        </div>
 
         <div class="d-flex gap-2 flex-wrap mt-3">
             <button type="submit" class="btn btn-primary">Update Medicines</button>
@@ -60,3 +67,59 @@
         </div>
     </form>
 </div>
+
+<div id="new-medicine-template" style="display: none;">
+    <div class="row g-3 mb-3 align-items-end p-3 border rounded glass-container">
+        <input type="hidden" name="Medicines[__INDEX__].ReceiptMedicineID" value="0" />
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                <select name="Medicines[__INDEX__].Medicine.MedicineID" class="form-select">
+                    <option value="">-- Select Medicine --</option>
+                    @if (ViewBag.Medicines != null)
+                    {
+                        foreach (var item in (IEnumerable<SelectListItem>)ViewBag.Medicines)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    }
+                </select>
+                <label>Medicine</label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-floating">
+                <input type="number" name="Medicines[__INDEX__].Quantity" class="form-control" placeholder="Quantity" value="1" />
+                <label>Quantity</label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input type="text" name="Medicines[__INDEX__].Dosage" class="form-control" placeholder="Dosage" />
+                <label>Dosage</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function addMedicineRow() {
+        var container = document.getElementById("medicine-container");
+        var template = document.getElementById("new-medicine-template").innerHTML;
+        var noMedsMsg = document.getElementById("no-meds-msg");
+
+        // Calculate index based on current rows
+        var currentIndex = container.querySelectorAll('.glass-container').length;
+
+        // Replace placeholder index
+        var newHtml = template.replace(/__INDEX__/g, currentIndex);
+
+        // Create temp element and append
+        var tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newHtml;
+        container.appendChild(tempDiv.firstElementChild);
+
+        // Hide empty message if shown
+        if(noMedsMsg) noMedsMsg.style.display = 'none';
+    }
+</script>

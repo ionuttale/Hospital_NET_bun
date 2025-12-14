@@ -793,7 +793,8 @@ namespace Hospital_simple.Controllers
             ViewBag.Medicines = medicinesList;
 
             var model = new CreateReceiptModel();
-            for (int i = 0; i < 5; i++) model.Medicines.Add(new ReceiptMedicineLineItem());
+            // Start with 0 items. JS adds them.
+            // Removed: for (int i = 0; i < 5; i++) model.Medicines.Add(new ReceiptMedicineLineItem());
 
             return View(model);
         }
@@ -803,6 +804,18 @@ namespace Hospital_simple.Controllers
         public async Task<IActionResult> CreateReceipt(CreateReceiptModel model)
         {
             int doctorId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            // 1. FILTER EMPTY ROWS BEFORE VALIDATION
+            if (model.Medicines != null)
+            {
+                model.Medicines = model.Medicines
+                    .Where(m => m.MedicineID > 0 && m.Quantity > 0)
+                    .ToList();
+            }
+
+            // 2. CLEAR VALIDATION ERRORS CAUSED BY EMPTY ROWS
+            ModelState.Clear();
+            TryValidateModel(model);
 
             if (!ModelState.IsValid)
             {
@@ -822,11 +835,8 @@ namespace Hospital_simple.Controllers
                 cmdReceipt.Parameters.AddWithValue("@consultId", model.ConsultationID);
                 ulong receiptId = Convert.ToUInt64(await cmdReceipt.ExecuteScalarAsync());
 
-                var validMeds = model.Medicines
-                    .Where(m => m.MedicineID > 0 && m.Quantity > 0 && !string.IsNullOrEmpty(m.Dosage))
-                    .ToList();
-
-                foreach (var med in validMeds)
+                // validMeds is already filtered above
+                foreach (var med in model.Medicines)
                 {
                     string sqlMed = @"INSERT INTO Receipt_Medicines (ReceiptID, MedicineID, Quantity, Dosage)
                                     VALUES (@rId, @medId, @qty, @dosage)";
@@ -1063,44 +1073,80 @@ namespace Hospital_simple.Controllers
                 await using var connection = new MySqlConnection(_configuration.GetConnectionString("Default"));
                 await connection.OpenAsync();
 
+                // 1. Security Check: Ensure the logged-in doctor owns this receipt
                 string checkSql = @"
                     SELECT d.DoctorID FROM Doctors d
                     JOIN Consultations c ON d.DoctorID = c.DoctorID
                     JOIN Receipts r ON c.ConsultID = r.ConsultID
                     WHERE r.ReceiptID = @id";
+                    
                 using var checkCmd = new MySqlCommand(checkSql, connection);
                 checkCmd.Parameters.AddWithValue("@id", model.ReceiptID);
-                var ownerDoctorId = Convert.ToUInt64(await checkCmd.ExecuteScalarAsync());
-
-                if (ownerDoctorId != (ulong)doctorId)
+                var result = await checkCmd.ExecuteScalarAsync();
+                
+                // If result is null or IDs don't match, unauthorized
+                if (result == null || Convert.ToUInt64(result) != (ulong)doctorId)
                 {
                     _logger.LogWarning("Unauthorized update attempt: Doctor {DoctorId} tried to update receipt {ReceiptId}", doctorId, model.ReceiptID);
                     return Unauthorized();
                 }
 
-                foreach (var med in model.Medicines)
+                // 2. Loop through the list of medicines submitted from the form
+                if (model.Medicines != null)
                 {
-                    string updateSql = @"
-                        UPDATE Receipt_Medicines
-                        SET MedicineID=@medId, Quantity=@qty, Dosage=@dosage
-                        WHERE ReceiptMedicineID=@rmId";
-                    using var cmd = new MySqlCommand(updateSql, connection);
-                    cmd.Parameters.AddWithValue("@medId", med.Medicine.MedicineID);
-                    cmd.Parameters.AddWithValue("@qty", med.Quantity);
-                    cmd.Parameters.AddWithValue("@dosage", med.Dosage);
-                    cmd.Parameters.AddWithValue("@rmId", med.ReceiptMedicineID);
-                    await cmd.ExecuteNonQueryAsync();
+                    foreach (var med in model.Medicines)
+                    {
+                        // Skip empty entries if no medicine was selected
+                        // Note: For Update, the model structure binds slightly differently. 
+                        // med.Medicine can be null if validation failed or binding issue, 
+                        // but med.Medicine.MedicineID matches name="Medicines[i].Medicine.MedicineID"
+                        if (med.Medicine == null || med.Medicine.MedicineID == 0) continue;
+
+                        if (med.ReceiptMedicineID == 0)
+                        {
+                            // === CASE A: INSERT NEW MEDICINE ===
+                            // ID is 0, so this is a new row added via JavaScript
+                            string insertSql = @"
+                                INSERT INTO Receipt_Medicines (ReceiptID, MedicineID, Quantity, Dosage)
+                                VALUES (@receiptId, @medId, @qty, @dosage)";
+
+                            using var cmd = new MySqlCommand(insertSql, connection);
+                            cmd.Parameters.AddWithValue("@receiptId", model.ReceiptID);
+                            cmd.Parameters.AddWithValue("@medId", med.Medicine.MedicineID);
+                            cmd.Parameters.AddWithValue("@qty", med.Quantity);
+                            cmd.Parameters.AddWithValue("@dosage", med.Dosage);
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+                        else
+                        {
+                            // === CASE B: UPDATE EXISTING MEDICINE ===
+                            // ID exists, so we update the existing record
+                            string updateSql = @"
+                                UPDATE Receipt_Medicines
+                                SET MedicineID=@medId, Quantity=@qty, Dosage=@dosage
+                                WHERE ReceiptMedicineID=@rmId";
+
+                            using var cmd = new MySqlCommand(updateSql, connection);
+                            cmd.Parameters.AddWithValue("@medId", med.Medicine.MedicineID);
+                            cmd.Parameters.AddWithValue("@qty", med.Quantity);
+                            cmd.Parameters.AddWithValue("@dosage", med.Dosage);
+                            cmd.Parameters.AddWithValue("@rmId", med.ReceiptMedicineID);
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+                    }
                 }
+
+                return RedirectToAction(nameof(ManageReceipts));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in POST UpdateReceipt {Id}", model.ReceiptID);
+                
+                // If an error occurs, reload the page so the user doesn't lose data
+                // We call the GET method to reload the View and Dropdowns
                 return await UpdateReceipt((ulong)model.ReceiptID);
             }
-
-            return RedirectToAction(nameof(ManageReceipts));
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]

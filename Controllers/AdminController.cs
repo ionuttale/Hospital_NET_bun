@@ -122,7 +122,7 @@ namespace Hospital_simple.Controllers
                             return View(model);
                         }
 
-                        string sqlDoctor = @"INSERT INTO Doctors (FirstName, LastName, Email, Specialty) 
+                        string sqlDoctor = @"INSERT INTO Doctors (FirstName, LastName, Email, Specialization) 
                                             VALUES (@first, @last, @email, @spec);
                                             SELECT LAST_INSERT_ID();";
                         
@@ -135,11 +135,12 @@ namespace Hospital_simple.Controllers
                         newDoctorId = Convert.ToUInt64(await cmdDoc.ExecuteScalarAsync());
                     }
 
-                    string sqlUser = @"INSERT INTO Users (Username, Password, Type, DoctorID) 
+                    string sqlUser = @"INSERT INTO Users (Username, Password, UserType, DoctorID) 
                                     VALUES (@user, @pass, @type, @docId)";
 
                     using var cmdUser = new MySqlCommand(sqlUser, connection, transaction);
                     cmdUser.Parameters.AddWithValue("@user", model.Username);
+                    model.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
                     cmdUser.Parameters.AddWithValue("@pass", model.Password); 
                     cmdUser.Parameters.AddWithValue("@type", model.UserType);
                     cmdUser.Parameters.AddWithValue("@docId", newDoctorId ?? (object)DBNull.Value);
